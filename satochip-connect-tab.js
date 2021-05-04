@@ -34,7 +34,10 @@ if (window.parent === window) {
 
           obj_tab.ws.send(data);
           console.log('Request:' + data);
-
+          
+          // update satochip logo
+          document.getElementById('satochip_logo').src='satochip.png';
+          
           resolve(obj_tab.ws);
         };
 
@@ -62,6 +65,10 @@ if (window.parent === window) {
           console.log('In satochip-connect-tab: connect() onclose: event.code: ', event.code);
           //console.log('disconnected with code:' + event.code);
           obj_tab.isConnected = false;
+          
+          // update satochip logo
+          document.getElementById('satochip_logo').src='satochip-unpaired.png';
+          
           setTimeout(obj_tab.connect, obj_tab.reconnectInterval);
         };
 
@@ -249,10 +256,12 @@ if (window.parent === window) {
       action: 'sign_tx_hash',
       tx: tx_info.tx_serialized, //tx: transaction.serialize().toString('hex'), //tx.serialize().toString('hex'), //DEBUGTMP
       hash: tx_info.tx_hash_false, //hash: transaction.hash(true).toString('hex'), //hash: transaction.hash(false).toString('hex'),
-      path: tx_info.path //this.getPath()
+      //hash: tx_info.tx_hash_true, //hash: transaction.hash(true).toString('hex'), //hash: transaction.hash(false).toString('hex'),
+      path: path //this.getPath()
     };
     const request = JSON.stringify(msg);
-
+    const chainId= tx_info.chainId;
+    
     //return new Promise((resolve) => {
       // send request to device and keep a ref of the resolve function in a map
       const response = new Promise((resolve2) => {
@@ -264,7 +273,7 @@ if (window.parent === window) {
       }).then((res) => {
         // extracts usefull data from device response and resolve original promise
         console.log('In satochip-connect-tab: signRawTransaction: res: ', res);
-        let payload={ v: res.v, r:res.r, s:res.s}
+        let payload={ v: (res.v+chainId*2+35), r:res.r, s:res.s}
         obj_tab.sendMessageToIframe(replyAction, true, payload); // TODO: check for error
       });
     //});
