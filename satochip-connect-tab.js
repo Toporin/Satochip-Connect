@@ -4,10 +4,7 @@ if (window.parent === window) {
   console.log('In satochip-connect-tab: IF BLOCK START')
   console.log('In satochip-connect-tab: VERSION 0.3')
   let obj_tab={}
-  obj_tab.bc = new BroadcastChannel('coolwallets');
-  
-  
-  
+  obj_tab.bc = new BroadcastChannel('satochip');  
   
   //obj_tab.hdPath = `m/44'/60'/0'/0`;
   obj_tab.requestID=0;
@@ -142,31 +139,31 @@ if (window.parent === window) {
 		obj_tab.bc.onmessage = async ({ data }) => {
       console.log('In satochip-connect-tab: setUpListeners: onmessage START')
       console.log('In satochip-connect-tab: setUpListeners: onmessage data:', data)
-			if (data && data.target === 'CWS-TAB') {
+			if (data && data.target === 'SATOCHIP-TAB') {
         //console.log('In satochip-connect-tab: setUpListeners: onmessage data:', data)
 				const { action, params } = data;
         console.log('In satochip-connect-tab: setUpListeners: onmessage action:', action)
 				const replyAction = `${action}-reply`;
 				//await obj_tab.waitForConnection(); //TODO?
 				switch (action) {
-					case 'coolwallet-connection-check':
+					case 'satochip-connection-check':
 						//obj_tab.sendMessageToIframe(replyAction, false, { error: 'echo: satochip-connection-check' });
             // TODO: check websocket is ready
             obj_tab.bc.postMessage({ target: 'tab-status', ready: true });
 						break;
-					case 'coolwallet-unlock':
+					case 'satochip-unlock':
             obj_tab.getChainCode(replyAction, params.path)
             //obj_tab.sendMessageToIframe(replyAction, false, { error: 'echo: satochip-unlock' });
 						break;
-					case 'coolwallet-sign-transaction':
+					case 'satochip-sign-transaction':
             obj_tab.signRawTransaction(replyAction, params.path, params.tx, params.tx_info);
 						//obj_tab.sendMessageToIframe(replyAction, false, { error: 'echo: satochip-sign-tx' });
 						break;
-					case 'coolwallet-sign-personal-message':
+					case 'satochip-sign-personal-message':
             obj_tab.signPersonalMessage(replyAction, params.path, params.message, params.hash)
 						//obj_tab.sendMessageToIframe(replyAction, false, { error: 'echo: satochip-sign-perso' });
 						break;
-					case 'coolwallet-sign-typed-data':
+					case 'satochip-sign-typed-data':
 						obj_tab.sendMessageToIframe(replyAction, false, { error: 'echo: satochip-typed' });
 						break;
 					default:
@@ -321,7 +318,7 @@ if (window.parent === window) {
   
   //obj_tab.connect()
   //obj_tab.setUpWebsocket();
-  // Tab or open directly. Listen CWS-TAB message from BroadCastChannel
+  // Tab or open directly. Listen SATOCHIP-TAB message from BroadCastChannel
   obj_tab.setUpListeners();
   console.log('In satochip-connect-tab: IF BLOCK END')
 }
