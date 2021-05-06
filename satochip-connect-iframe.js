@@ -90,10 +90,6 @@ if (window.parent !== window) {// iframe
 		return new Promise((resolve) => setTimeout(resolve, ms));
     console.log('In satochip-connect-iframe: sleep END')
 	}
-
-
-  
-  //==================
   
   obj_iframe.tabReady = false;
   obj_iframe.bc = new BroadcastChannel('satochip');
