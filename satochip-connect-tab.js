@@ -13,6 +13,7 @@ if (window.parent === window) {
   obj_tab.reconnectInterval = (1 * 1000 * 60) / 4;
   console.log('In satochip-connect-tab: websocket created!');
   
+  // connect to Satochip-Bridge through a websocket
   obj_tab.connect = function() {
     console.log('In satochip-connect-tab: connect()');
 
@@ -80,16 +81,9 @@ if (window.parent === window) {
     });
   }; //end connect()
   
-  //=====================
+  // listen to messages from satochip-connect-iframe
   obj_tab.setUpListeners= function() {
     console.log('In satochip-connect-tab: setUpListeners START')
-    
-/*     //debug: todo remove
-    window.onload = (event) => {
-      console.log('In satochip-connect-tab: setUpListeners: onload START');
-      //obj_tab.bc.postMessage({ target: 'tab-status', ready: true });
-      console.log('In satochip-connect-tab: setUpListeners: onload END');
-    }; */
     
 		window.onbeforeunload = () => {
       console.log('In satochip-connect-tab: setUpListeners: onbeforeunload START')
