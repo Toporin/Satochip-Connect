@@ -83,15 +83,13 @@ if (window.parent === window) {
   //=====================
   obj_tab.setUpListeners= function() {
     console.log('In satochip-connect-tab: setUpListeners START')
-    //obj_tab.bc.postMessage({ target: 'tab-status', ready: true });
-    //console.log('In satochip-connect-tab: setUpListeners READY!')
     
-    //debug: todo remove
+/*     //debug: todo remove
     window.onload = (event) => {
       console.log('In satochip-connect-tab: setUpListeners: onload START');
       //obj_tab.bc.postMessage({ target: 'tab-status', ready: true });
       console.log('In satochip-connect-tab: setUpListeners: onload END');
-    };
+    }; */
     
 		window.onbeforeunload = () => {
       console.log('In satochip-connect-tab: setUpListeners: onbeforeunload START')
@@ -192,9 +190,6 @@ if (window.parent === window) {
     console.log('In satochip-connect-tab: signRawTransaction(): tx', tx);
     console.log('In satochip-connect-tab: signRawTransaction(): tx_info', tx_info);
 
-/*     if (!obj_tab.isConnected) {
-      obj_tab.connect();
-    } */
     obj_tab.connect().then((ws) => {
   
       const msg = {
@@ -231,9 +226,6 @@ if (window.parent === window) {
     console.log('In satochip-connect-tab: signRawTransaction(): path', path);
     console.log('In satochip-connect-tab: signRawTransaction(): message', message);
     
-/*     if (!obj_tab.isConnected) {
-      obj_tab.connect();
-    } */
     obj_tab.connect().then((ws) => {
       const data = {
         requestID: obj_tab.requestID++,
