@@ -192,35 +192,37 @@ if (window.parent === window) {
     console.log('In satochip-connect-tab: signRawTransaction(): tx', tx);
     console.log('In satochip-connect-tab: signRawTransaction(): tx_info', tx_info);
 
-    if (!obj_tab.isConnected) {
+/*     if (!obj_tab.isConnected) {
       obj_tab.connect();
-    }
-
-    const msg = {
-      requestID: obj_tab.requestID++,
-      action: 'sign_tx_hash',
-      tx: tx_info.tx_serialized, 
-      hash: tx_info.tx_hash_false, // EIP155 enabled
-      //hash: tx_info.tx_hash_true, // EIP155 disabled
-      path: path
-    };
-    const request = JSON.stringify(msg);
-    const chainId= tx_info.chainId;
-    
-    // send request to device and keep a ref of the resolve function in a map
-    const response = new Promise((resolve2) => {
-      console.log('Satochip: resolveMap.size - before:' + obj_tab.resolveMap.size);
-      obj_tab.resolveMap.set(msg.requestID, resolve2);
-      obj_tab.ws.send(request);
-      console.log('Satochip: request sent:' + request);
-      console.log('Satochip: resolveMap.size - after:' + obj_tab.resolveMap.size);
-    }).then((res) => {
-      // extracts usefull data from device response and resolve original promise
-      console.log('In satochip-connect-tab: signRawTransaction: res: ', res);
-      let payload={ v: (res.v+chainId*2+35), r:res.r, s:res.s}
-      obj_tab.sendMessageToIframe(replyAction, true, payload); // TODO: check for error
-    });
+    } */
+    obj_tab.connect().then((ws) => {
+  
+      const msg = {
+        requestID: obj_tab.requestID++,
+        action: 'sign_tx_hash',
+        tx: tx_info.tx_serialized, 
+        hash: tx_info.tx_hash_false, // EIP155 enabled
+        //hash: tx_info.tx_hash_true, // EIP155 disabled
+        path: path
+      };
+      const request = JSON.stringify(msg);
+      const chainId= tx_info.chainId;
       
+      // send request to device and keep a ref of the resolve function in a map
+      const response = new Promise((resolve2) => {
+        console.log('Satochip: resolveMap.size - before:' + obj_tab.resolveMap.size);
+        obj_tab.resolveMap.set(msg.requestID, resolve2);
+        ws.send(request);
+        console.log('Satochip: request sent:' + request);
+        console.log('Satochip: resolveMap.size - after:' + obj_tab.resolveMap.size);
+      }).then((res) => {
+        // extracts usefull data from device response and resolve original promise
+        console.log('In satochip-connect-tab: signRawTransaction: res: ', res);
+        let payload={ v: (res.v+chainId*2+35), r:res.r, s:res.s}
+        obj_tab.sendMessageToIframe(replyAction, true, payload); // TODO: check for error
+      });
+    });
+          
   } // end signRawTransaction
 
   obj_tab.signPersonalMessage= function(replyAction, path, message, hash) {
@@ -229,38 +231,37 @@ if (window.parent === window) {
     console.log('In satochip-connect-tab: signRawTransaction(): path', path);
     console.log('In satochip-connect-tab: signRawTransaction(): message', message);
     
-    if (!obj_tab.isConnected) {
+/*     if (!obj_tab.isConnected) {
       obj_tab.connect();
-    }
+    } */
+    obj_tab.connect().then((ws) => {
+      const data = {
+        requestID: obj_tab.requestID++,
+        action: 'sign_msg_hash',
+        msg: message,
+        hash: hash,
+        path: path
+      };
+      const request = JSON.stringify(data);
 
-    const data = {
-      requestID: obj_tab.requestID++,
-      action: 'sign_msg_hash',
-      msg: message,
-      hash: hash,
-      path: path
-    };
-    const request = JSON.stringify(data);
-
-    // send request to device and keep a ref of the resolve function in a map
-    const response = new Promise((resolve2) => {
-      obj_tab.resolveMap.set(data.requestID, resolve2);
-      obj_tab.ws.send(request);
-      console.log('Satochip: request sent:' + request);
-    }).then((res) => {
-      // extracts usefull data from device response and resolve original promise
-      const r = res.r;
-      const s = res.s;
-      const v = ('0' + res.v.toString(16)).slice(-2); //padd with '0'
-      //const sig = addHexPrefix(r + s + v);
-      const sig = '0x' + (r + s + v);
-      
-      console.log('In satochip-connect-tab: signRawTransaction(): sig', sig);
-      obj_tab.sendMessageToIframe(replyAction, true, sig);
+      // send request to device and keep a ref of the resolve function in a map
+      const response = new Promise((resolve2) => {
+        obj_tab.resolveMap.set(data.requestID, resolve2);
+        ws.send(request);
+        console.log('Satochip: request sent:' + request);
+      }).then((res) => {
+        // extracts usefull data from device response and resolve original promise
+        const r = res.r;
+        const s = res.s;
+        const v = ('0' + res.v.toString(16)).slice(-2); //padd with '0'
+        //const sig = addHexPrefix(r + s + v);
+        const sig = '0x' + (r + s + v);
+        
+        console.log('In satochip-connect-tab: signRawTransaction(): sig', sig);
+        obj_tab.sendMessageToIframe(replyAction, true, sig);
+      });
     });
-      
-	}
-  //=============================================================
+	} // end signPersonalMessage
   
   obj_tab.setUpListeners();
   console.log('In satochip-connect-tab: IF BLOCK END')

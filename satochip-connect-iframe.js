@@ -6,8 +6,8 @@ if (window.parent !== window) {// iframe
   //==================
   obj_iframe.setupListenersIframe= function() {
     console.log('In satochip-connect-iframe: setupListenersIframe START')
-    const tabDomain = 'https://toporin.github.io/Satochip-Connect/'
-    //const tabDomain = 'http://localhost:3000'
+    //const tabDomain = 'https://toporin.github.io/Satochip-Connect/'
+    const tabDomain = 'http://localhost:3000'
 
 		// Open as IFRAME
 		onmessage = async ({ data, source, origin }) => {
@@ -74,7 +74,7 @@ if (window.parent !== window) {// iframe
 
 	obj_iframe.openOnce= function(url, target) {
     console.log('In satochip-connect-iframe: openOnce START')
-		var winref = window.open('', target, '', true);
+		var winref =  window.open('', target, ''); //window.open('', target, '', true);
 
 		// if the "target" window was just opened, change its url
 		if (winref.location.href === 'about:blank') {
