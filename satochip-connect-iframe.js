@@ -6,8 +6,8 @@ if (window.parent !== window) {// iframe
   //==================
   obj_iframe.setupListenersIframe= function() {
     console.log('In satochip-connect-iframe: setupListenersIframe START')
-    //const tabDomain = 'https://toporin.github.io/Satochip-Connect/'
-    const tabDomain = 'http://localhost:3000'
+    const tabDomain = 'https://toporin.github.io/Satochip-Connect/'
+    //const tabDomain = 'http://localhost:3000'
 
 		// Open as IFRAME
 		onmessage = async ({ data, source, origin }) => {
