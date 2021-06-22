@@ -192,6 +192,8 @@ if (window.parent === window) {
         tx: tx_info.tx_serialized, 
         hash: tx_info.tx_hash_false, // EIP155 enabled
         //hash: tx_info.tx_hash_true, // EIP155 disabled
+        chainId: tx_info.chainId,
+        from: tx_info.address,
         path: path
       };
       const request = JSON.stringify(msg);
