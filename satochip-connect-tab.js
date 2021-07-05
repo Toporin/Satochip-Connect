@@ -64,7 +64,7 @@ if (window.parent === window) {
           obj_tab.isConnected = false;
           
           // update satochip logo
-          document.getElementById('satochip_logo').src='satochip-unpaired.png';
+          document.getElementById('satochip_logo').src='satochip_unpaired.png';
           
           setTimeout(obj_tab.connect, obj_tab.reconnectInterval);
         };
