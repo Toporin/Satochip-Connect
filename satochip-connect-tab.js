@@ -85,63 +85,63 @@ if (window.parent === window) {
   obj_tab.setUpListeners= function() {
     console.log('In satochip-connect-tab: setUpListeners START')
     
-		window.onbeforeunload = () => {
+    window.onbeforeunload = () => {
       console.log('In satochip-connect-tab: setUpListeners: onbeforeunload START')
-			obj_tab.bc.postMessage({ target: 'tab-status', ready: false });
+      obj_tab.bc.postMessage({ target: 'tab-status', ready: false });
       console.log('In satochip-connect-tab: setUpListeners: onbeforeunload END')
-		};
+    };
 
-		obj_tab.bc.onmessage = async ({ data }) => {
+    obj_tab.bc.onmessage = async ({ data }) => {
       console.log('In satochip-connect-tab: setUpListeners: onmessage START')
       console.log('In satochip-connect-tab: setUpListeners: onmessage data:', data)
-			if (data && data.target === 'SATOCHIP-TAB') {
+      if (data && data.target === 'SATOCHIP-TAB') {
         //console.log('In satochip-connect-tab: setUpListeners: onmessage data:', data)
-				const { action, params } = data;
+        const { action, params } = data;
         console.log('In satochip-connect-tab: setUpListeners: onmessage action:', action)
-				const replyAction = `${action}-reply`;
-				//await obj_tab.waitForConnection(); //TODO?
-				switch (action) {
-					case 'satochip-connection-check':
+        const replyAction = `${action}-reply`;
+        //await obj_tab.waitForConnection(); //TODO?
+        switch (action) {
+          case 'satochip-connection-check':
             // TODO: check websocket is ready
             obj_tab.bc.postMessage({ target: 'tab-status', ready: true });
-						break;
-					case 'satochip-unlock':
+            break;
+          case 'satochip-unlock':
             obj_tab.getChainCode(replyAction, params.path);
-						break;
-					case 'satochip-sign-transaction':
+            break;
+          case 'satochip-sign-transaction':
             obj_tab.signRawTransaction(replyAction, params.path, params.tx, params.tx_info);
-						break;
-					case 'satochip-sign-personal-message':
+            break;
+          case 'satochip-sign-personal-message':
             obj_tab.signPersonalMessage(replyAction, params.path, params.message, params.hash);
-						break;
-					case 'satochip-sign-typed-data':
-						obj_tab.sendMessageToIframe(replyAction, false, { error: 'echo: satochip-typed' });
-						break;
-					default:
-						obj_tab.sendMessageToIframe(replyAction, false, { error: 'Not supported' });
-						break;
-				}
-			}
+            break;
+          case 'satochip-sign-typed-data':
+            obj_tab.sendMessageToIframe(replyAction, false, { error: 'echo: satochip-typed' });
+            break;
+          default:
+            obj_tab.sendMessageToIframe(replyAction, false, { error: 'Not supported' });
+            break;
+        }
+      }
       console.log('In satochip-connect-tab: setUpListeners: onmessage END')
-		};
+    };
     
     console.log('In satochip-connect-tab: setUpListeners END')
-	} //end setUpListeners
+  } //end setUpListeners
 
-	/**
+  /**
    *
    * @param {String} action
    * @param {Boolean} success
    * @param {any} payload
    */
-	obj_tab.sendMessageToIframe= function(action, success, payload) {
+  obj_tab.sendMessageToIframe= function(action, success, payload) {
     console.log('In satochip-connect-tab: sendMessageToIframe START')
     console.log('In satochip-connect-tab: sendMessageToIframe action: ', action)
     console.log('In satochip-connect-tab: sendMessageToIframe success: ', success)
     console.log('In satochip-connect-tab: sendMessageToIframe payload: ', payload)
-		obj_tab.bc.postMessage({ action, success, payload });
+    obj_tab.bc.postMessage({ action, success, payload });
     console.log('In satochip-connect-tab: sendMessageToIframe END')
-	}
+  }
   
   //=============================================================
   
@@ -217,7 +217,7 @@ if (window.parent === window) {
   } // end signRawTransaction
 
   obj_tab.signPersonalMessage= function(replyAction, path, message, hash) {
-		console.log('In satochip-connect-tab: signPersonalMessage(): START');
+    console.log('In satochip-connect-tab: signPersonalMessage(): START');
     console.log('In satochip-connect-tab: signRawTransaction(): replyAction', replyAction);
     console.log('In satochip-connect-tab: signRawTransaction(): path', path);
     console.log('In satochip-connect-tab: signRawTransaction(): message', message);
@@ -249,9 +249,9 @@ if (window.parent === window) {
         obj_tab.sendMessageToIframe(replyAction, true, sig);
       });
     });
-	} // end signPersonalMessage
+  } // end signPersonalMessage
   
   obj_tab.setUpListeners();
   console.log('In satochip-connect-tab: IF BLOCK END')
 }
-	
+  
