@@ -103,7 +103,11 @@ if (window.parent === window) {
         switch (action) {
           case 'satochip-connection-check':
             // TODO: check websocket is ready
-            obj_tab.bc.postMessage({ target: 'tab-status', ready: true });
+            if (obj_tab.isConnected) {
+              obj_tab.bc.postMessage({ target: 'tab-status', ready: true });
+            } else {
+              obj_tab.bc.postMessage({ target: 'tab-status', ready: false });
+            }
             break;
           case 'satochip-unlock':
             obj_tab.getChainCode(replyAction, params.path);
