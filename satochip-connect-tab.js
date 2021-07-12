@@ -2,7 +2,7 @@
 
 if (window.parent === window) {
   console.log('In satochip-connect-tab: IF BLOCK START')
-  console.log('In satochip-connect-tab: VERSION 0.3')
+  console.log('In satochip-connect-tab: VERSION 0.4')
   let obj_tab={}
   obj_tab.bc = new BroadcastChannel('satochip');  
   
@@ -10,14 +10,14 @@ if (window.parent === window) {
   obj_tab.requestID=0;
   obj_tab.resolveMap= new Map();
   obj_tab.isConnected= false;
-  obj_tab.reconnectInterval = (1 * 1000 * 60) / 4;
+  obj_tab.reconnectInterval = (1 * 1000 * 60) / 4; // in ms
   console.log('In satochip-connect-tab: websocket created!');
   
   // connect to Satochip-Bridge through a websocket
   obj_tab.connect = function() {
     console.log('In satochip-connect-tab: connect()');
 
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       if (!obj_tab.isConnected) {
         console.log('In satochip-connect-tab: connect(): creating WebSocket...');
         obj_tab.ws = new WebSocket('ws://localhost:8397/');
@@ -72,6 +72,8 @@ if (window.parent === window) {
         obj_tab.ws.onerror = function error() {
           console.log('In satochip-connect-tab: connect() onerror: disconnected with error!' );
           obj_tab.isConnected = false;
+          alert('Could not connect to Satochip-Bridge: please ensure that it is running!')
+          reject(new Error('Satochip: error while connecting to Satochip-Bridge'))
         };
         
       } else {
@@ -102,12 +104,7 @@ if (window.parent === window) {
         //await obj_tab.waitForConnection(); //TODO?
         switch (action) {
           case 'satochip-connection-check':
-            // TODO: check websocket is ready
-            if (obj_tab.isConnected) {
-              obj_tab.bc.postMessage({ target: 'tab-status', ready: true });
-            } else {
-              obj_tab.bc.postMessage({ target: 'tab-status', ready: false });
-            }
+            obj_tab.bc.postMessage({ target: 'tab-status', ready: true });
             break;
           case 'satochip-unlock':
             obj_tab.getChainCode(replyAction, params.path);
@@ -172,11 +169,21 @@ if (window.parent === window) {
         console.log('Satochip: typeof(resolve2):' + typeof resolve2);
         console.log('Satochip: resolveMap.size - after:' + obj_tab.resolveMap.size);
       }).then((res) => {
-        // return answers to iframe
-        console.log('In satochip-connect-tab: getChainCode: res: ', res);
-        let payload={ parentPublicKey: res.pubkey, parentChainCode: res.chaincode}
-        obj_tab.sendMessageToIframe(replyAction, true, payload); // TODO: check for error
+        if (res.exitstatus == 0){
+          // return answers to iframe
+          console.log('In satochip-connect-tab: getChainCode: res: ', res);
+          let payload={ parentPublicKey: res.pubkey, parentChainCode: res.chaincode}
+          obj_tab.sendMessageToIframe(replyAction, true, payload); // TODO: check for error
+        }else{
+          // there was an issue
+          let payload={ error:res.reason }
+          obj_tab.sendMessageToIframe(replyAction, false, payload); // TODO: check for error
+        }
       });
+    }).catch(error => {
+      // there was an issue
+      let payload={ error:error.message }
+      obj_tab.sendMessageToIframe(replyAction, false, payload); // TODO: check for error
     });  
     
   }// end getChainCode
@@ -213,10 +220,21 @@ if (window.parent === window) {
       }).then((res) => {
         // extracts usefull data from device response and resolve original promise
         console.log('In satochip-connect-tab: signRawTransaction: res: ', res);
-        let payload={ v: (res.v+chainId*2+35), r:res.r, s:res.s}
-        obj_tab.sendMessageToIframe(replyAction, true, payload); // TODO: check for error
+        if (res.exitstatus == 0){
+          let payload={ v: (res.v+chainId*2+35), r:res.r, s:res.s}
+          obj_tab.sendMessageToIframe(replyAction, true, payload); // TODO: check for error
+        }else{ 
+          // there was an issue
+          let payload={ error:res.reason }
+          obj_tab.sendMessageToIframe(replyAction, false, payload); // TODO: check for error
+        }
+        
       });
-    });
+    }).catch(error => {
+      // there was an issue
+      let payload={ error:error.message }
+      obj_tab.sendMessageToIframe(replyAction, false, payload); // TODO: check for error
+    }); 
           
   } // end signRawTransaction
 
@@ -242,17 +260,26 @@ if (window.parent === window) {
         ws.send(request);
         console.log('Satochip: request sent:' + request);
       }).then((res) => {
-        // extracts usefull data from device response and resolve original promise
-        const r = res.r;
-        const s = res.s;
-        const v = ('0' + res.v.toString(16)).slice(-2); //padd with '0'
-        //const sig = addHexPrefix(r + s + v);
-        const sig = '0x' + (r + s + v);
-        
-        console.log('In satochip-connect-tab: signRawTransaction(): sig', sig);
-        obj_tab.sendMessageToIframe(replyAction, true, sig);
+        if (res.exitstatus == 0){
+          // extracts usefull data from device response and resolve original promise
+          const r = res.r;
+          const s = res.s;
+          const v = ('0' + res.v.toString(16)).slice(-2); //padd with '0'
+          //const sig = addHexPrefix(r + s + v);
+          const sig = '0x' + (r + s + v);
+          console.log('In satochip-connect-tab: signRawTransaction(): sig', sig);
+          obj_tab.sendMessageToIframe(replyAction, true, sig);
+        }else{
+          // there was an issue
+          const sig = '0x';
+          obj_tab.sendMessageToIframe(replyAction, false, sig); // TODO: check for error
+        }
       });
-    });
+    }).catch(error => {
+      // there was an issue
+      let payload={ error:error.message }
+      obj_tab.sendMessageToIframe(replyAction, false, payload); // TODO: check for error
+    }); 
   } // end signPersonalMessage
   
   obj_tab.setUpListeners();
